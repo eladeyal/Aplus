@@ -52,7 +52,10 @@ app.post('/webhook', limiter, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+// Only listen when running locally, not in Netlify Functions
+if (!process.env.NETLIFY) {
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+}
 
 module.exports = app; 
