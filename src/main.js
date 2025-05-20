@@ -7,16 +7,36 @@ const config = require('../config.json');
 const { generateResponse } = require('./gptService');
 const { sendMessage } = require('./whatsapp');
 const logger = require('./logger');
+const { getConfig, updateConfig, toggleBot } = require('./runtimeConfig');
 
 const app = express();
+
+// Admin API: get bot status and toggle on/off
+app.get('/admin/config', (req, res) => {
+  const { botEnabled } = getConfig();
+  res.json({ botEnabled });
+});
+app.post('/admin/toggle', (req, res) => {
+  const { botEnabled } = toggleBot();
+  res.json({ botEnabled });
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
 
+// Check if bot is enabled
+function ensureBotEnabled(res, next) {
+  if (!getConfig().botEnabled) {
+    return res.status(503).send('Bot is currently disabled');
+  }
+  next();
+}
+
 // Simulation endpoint for local testing (bypasses Twilio integration)
-app.post('/simulate', async (req, res) => {
+app.post('/simulate', ensureBotEnabled, async (req, res) => {
   const from = req.body.from;
   const message = req.body.body;
   try {
@@ -36,7 +56,7 @@ const limiter = rateLimit({
   handler: (req, res) => res.status(429).send('Too Many Requests')
 });
 
-app.post('/webhook', limiter, async (req, res) => {
+app.post('/webhook', ensureBotEnabled, limiter, async (req, res) => {
   const from = req.body.From;
   const body = req.body.Body;
   logger.info({ from, body });
