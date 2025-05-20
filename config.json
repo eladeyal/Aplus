@@ -1,0 +1,16 @@
+{
+  "rateLimitWindowMs": 60000,
+  "rateLimitMax": 5,
+  "chatTones": {
+    "default": "You are a helpful assistant.",
+    "formal": "You are a professional assistant, respond formally.",
+    "casual": "You are a friendly assistant, respond casually.",
+    "funny": "You are a witty assistant, respond humorously."
+  },
+  "profiles": {
+    "default": {
+      "name": "BusinessOwner",
+      "description": "You are the owner of the business, respond concisely and professionally."
+    }
+  }
+} 

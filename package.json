@@ -1,0 +1,20 @@
+{
+  "name": "whatsapp-chatgpt-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp bot integrated with ChatGPT",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node tester.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3",
+    "openai": "^3.2.1",
+    "twilio": "^4.10.0",
+    "express-rate-limit": "^6.7.0",
+    "winston": "^3.8.2",
+    "axios": "^1.3.5",
+    "body-parser": "^1.20.1"
+  }
+} 
