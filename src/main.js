@@ -37,6 +37,11 @@ app.use('/admin', auth);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Serve unified dashboard (protected) at root
+app.get('/', auth, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../public/dashboard.html'));
+});
+
 // Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
 
