@@ -8,8 +8,14 @@ const { generateResponse } = require('./gptService');
 const { sendMessage } = require('./whatsapp');
 const logger = require('./logger');
 const { getConfig, updateConfig, toggleBot } = require('./runtimeConfig');
+const basicAuth = require('express-basic-auth');
 
 const app = express();
+
+// Admin credentials (set via ENV)
+const adminUser = process.env.ADMIN_USER || 'admin';
+const adminPassword = process.env.ADMIN_PASSWORD || 'password';
+const auth = basicAuth({ users: { [adminUser]: adminPassword }, challenge: true });
 
 // Admin API: get bot status and toggle on/off
 app.get('/admin/config', (req, res) => {
@@ -20,6 +26,13 @@ app.post('/admin/toggle', (req, res) => {
   const { botEnabled } = toggleBot();
   res.json({ botEnabled });
 });
+
+// Serve protected Admin Dashboard
+app.get('/admin.html', auth, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../public/admin.html'));
+});
+// Protect admin API routes
+app.use('/admin', auth);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
