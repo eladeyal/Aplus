@@ -23,11 +23,26 @@
 </head>
 <body>
   <h1>ברוכים הבאים ל-APPLUS</h1>
+  <div id="about" style="text-align:center; margin-bottom:20px;">
+    <h2>About</h2>
+    <ul style="list-style:none; padding:0;">
+      <li><strong>Bot:</strong> APLUS WhatsApp ChatGPT Bot</li>
+      <li><strong>Version:</strong> 1.0.0</li>
+    </ul>
+  </div>
   <div id="controls">
     <label>
       <input type="checkbox" id="toggleBot" />
       Bot Enabled
     </label>
+  </div>
+  <div id="stats" style="max-width:600px; margin:auto 0 20px; background:#fff; padding:15px; border-radius:8px;">
+    <h2>Stats</h2>
+    <ul>
+      <li>Total Simulations: <span id="simCount">-</span></li>
+      <li>Total WhatsApp Messages: <span id="webhookCount">-</span></li>
+      <li>Average Response Time: <span id="avgResp">-</span> ms</li>
+    </ul>
   </div>
   <div id="tester">
     <h2>Tester</h2>
@@ -52,6 +67,21 @@
     }
     document.getElementById('toggleBot').addEventListener('change', toggleBot);
     loadConfig();
+
+    // Stats logic
+    async function loadStats() {
+      try {
+        const res = await fetch('/admin/stats');
+        const data = await res.json();
+        document.getElementById('simCount').textContent = data.totalSimulations;
+        document.getElementById('webhookCount').textContent = data.totalWebhooks;
+        document.getElementById('avgResp').textContent = data.averageResponseTime;
+      } catch (e) {
+        console.error('Failed to load stats', e);
+      }
+    }
+    loadStats();
+    setInterval(loadStats, 10000);
 
     // Chat tester logic
     const chat = document.getElementById('chat');
