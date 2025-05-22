@@ -5,84 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WhatsApp ChatGPT Bot Tester</title>
   <style>
-    :root {
-      --primary-color: #25d366;
-      --background-color: #e5ddd5;
-      --chat-bg: #ffffff;
-      --user-bg: #dcf8c6;
-      --bot-bg: #f1f0f0;
-    }
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 0; 
-      display: flex; 
-      flex-direction: column; 
-      height: 100vh; 
-      background: var(--background-color);
-    }
-    #header {
-      background: var(--primary-color);
-      color: #fff;
-      padding: 12px;
-      text-align: center;
-      font-size: 1.2em;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    #chat { 
-      flex: 1; 
-      padding: 10px; 
-      overflow-y: auto; 
-      background: var(--chat-bg);
-      margin: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .message { 
-      max-width: 70%; 
-      margin: 5px 0; 
-      padding: 10px; 
-      border-radius: 8px; 
-      line-height: 1.4;
-    }
-    .user { background: var(--user-bg); align-self: flex-end; }
-    .bot { background: var(--bot-bg); align-self: flex-start; }
-    #form { 
-      display: flex; 
-      border-top: 1px solid #ccc; 
-      margin: 10px;
-    }
-    #input { 
-      flex: 1; 
-      padding: 10px; 
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-right: 8px;
-    }
-    #send { 
-      padding: 10px 16px; 
-      border: none; 
-      background: var(--primary-color); 
-      color: white; 
-      border-radius: 4px;
-      cursor: pointer; 
-      transition: background 0.3s;
-    }
-    #send:hover {
-      background: #1ebe5d;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+    #login, #mainUI { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
+    #login { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    input, textarea { width: 100%; border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin: 8px 0; }
+    button { border: none; border-radius: 5px; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+    #loginButton, #send, #saveScript { background-color: #25d366; color: #fff; }
+    #cancelEdit { background-color: #ccc; color: #333; margin-left: 10px; }
+    #editScriptBtn { background-color: #007bff; color: #fff; margin-bottom: 15px; }
+    h1 { text-align: center; margin: 0 0 15px; }
+    label { display: block; margin: 15px 0; font-weight: bold; }
+    #qrSection p { margin: 10px 0 5px; }
+    #chat { flex: 1; padding: 10px; overflow-y: auto; background: #fff; border: 1px solid #ddd; border-radius: 5px; max-height: 300px; margin-bottom: 15px; }
+    .message { max-width: 70%; margin: 5px 0; padding: 10px; border-radius: 8px; direction: rtl; text-align: right; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .user { background: #dcf8c6; align-self: flex-end; }
+    .bot { background: #e5e5ea; align-self: flex-start; }
   </style>
 </head>
 <body>
-  <div id="header">Hello Haim</div>
-  <div id="chat"></div>
-  <form id="form">
-    <input id="input" autocomplete="off" placeholder="Type a message..." required />
-    <button id="send">Send</button>
-  </form>
+  <div id="login">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username" autocomplete="username" />
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+    <button id="loginButton">Login</button>
+    <p id="loginError" style="color:red; display:none;">Invalid credentials</p>
+  </div>
+  <div id="mainUI" style="display:none; flex:1; flex-direction:column;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+      <button id="editScriptBtn">ערוך תסריט שיחה</button>
+      <button id="restartBtn">התחל שיחה מחדש</button>
+    </div>
+    <div id="editorSection" style="display:none; margin:10px 0;">
+      <form id="scriptForm">
+        <h3>Triggers</h3>
+        <div id="triggersContainer"></div>
+        <button type="button" id="addTriggerBtn">Add Trigger</button>
+        <h3>Opening Message</h3>
+        <textarea id="openingMessage" style="width:100%;" rows="2"></textarea>
+        <h3>Generic Replies</h3>
+        <div id="genericContainer"></div>
+        <button type="button" id="addGenericBtn">Add Reply</button>
+        <h3>Other Script</h3>
+        <textarea id="otherScript" style="width:100%;" rows="8"></textarea>
+        <br/>
+        <button type="button" id="saveScript">Save Script</button>
+        <button type="button" id="cancelEdit">Cancel</button>
+      </form>
+    </div>
+    <h1>Hello Haim</h1>
+    <!-- QR code to connect via WhatsApp -->
+    <div id="qrSection">
+      <p>סרוק את הקוד כדי להתחבר ל-WhatsApp:</p>
+      <img id="qrConnect" alt="QR Connect" />
+    </div>
+    <div id="chat"></div>
+    <form id="form">
+      <input id="input" autocomplete="off" placeholder="Type a message..." required />
+      <button id="send">Send</button>
+    </form>
+  </div>
   <script>
+    // Login logic
+    const loggedIn = localStorage.getItem('loggedIn') === 'true';
+    const loginDiv = document.getElementById('login');
+    const mainDiv = document.getElementById('mainUI');
+    if (loggedIn) {
+      loginDiv.style.display = 'none'; mainDiv.style.display = 'flex';
+    }
+    document.getElementById('loginButton').addEventListener('click', () => {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      if (user === 'haim' && pass === 'elinor1234') {
+        localStorage.setItem('loggedIn', 'true');
+        loginDiv.style.display = 'none'; mainDiv.style.display = 'flex';
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    });
     const chat = document.getElementById('chat');
     const form = document.getElementById('form');
     const input = document.getElementById('input');
+
+    // Fetch WhatsApp sandbox config for QR codes
+    const qrSection = document.getElementById('qrSection');
+    const qrConnect = document.getElementById('qrConnect');
+    async function loadWhatsappConfig() {
+      try {
+        const res = await fetch('/whatsapp-config');
+        const cfg = await res.json();
+        const num = cfg.whatsappNumber;
+        const join = cfg.sandboxJoinCode;
+        qrConnect.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://wa.me/${num}?text=join%20${join}`)}`;
+      } catch (e) {
+        console.error('Failed to load WhatsApp config', e);
+      }
+    }
+    loadWhatsappConfig();
 
     function append(sender, text) {
       const msg = document.createElement('div');
@@ -98,18 +116,93 @@
       append('user', text);
       input.value = '';
       try {
-        // simulate typing delay
-        await new Promise(r => setTimeout(r, 1000));
-        const res = await fetch('/simulate', {
+        const url = '/webhook';
+        const options = {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: 'web-user', body: text })
-        });
-        const data = await res.json();
-        append('bot', data.reply);
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ From: 'web-user', Body: text }).toString()
+        };
+        await fetch(url, options);
+        append('bot', 'ההודעה נשלחה ב-WhatsApp');
       } catch (err) {
         append('bot', 'Error: ' + err.message);
       }
+    });
+
+    const restartBtn = document.getElementById('restartBtn');
+    restartBtn.addEventListener('click', async () => {
+      try {
+        await fetch('/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: 'web-user' })
+        });
+        chat.innerHTML = '';
+      } catch (e) {
+        console.error('Failed to reset chat', e);
+      }
+    });
+
+    // Script editor logic
+    const editBtn = document.getElementById('editScriptBtn');
+    const editorSection = document.getElementById('editorSection');
+    const triggersContainer = document.getElementById('triggersContainer');
+    const addTriggerBtn = document.getElementById('addTriggerBtn');
+    const openingMessage = document.getElementById('openingMessage');
+    const genericContainer = document.getElementById('genericContainer');
+    const addGenericBtn = document.getElementById('addGenericBtn');
+    const otherScript = document.getElementById('otherScript');
+    const saveScript = document.getElementById('saveScript');
+    const cancelEdit = document.getElementById('cancelEdit');
+    editBtn.addEventListener('click', async () => {
+      editorSection.style.display = 'block';
+      const res = await fetch('/guidelines');
+      const data = await res.json();
+      // Populate triggers
+      triggersContainer.innerHTML = '';
+      data.triggers.forEach((t) => {
+        const input = document.createElement('input');
+        input.value = t;
+        triggersContainer.appendChild(input);
+      });
+      // Populate opening message
+      openingMessage.value = data.openingMessage;
+      // Populate generic replies
+      genericContainer.innerHTML = '';
+      data.genericReplies.forEach((g) => {
+        const input = document.createElement('input');
+        input.value = g;
+        genericContainer.appendChild(input);
+      });
+      // Populate other script
+      otherScript.value = data.otherScript;
+    });
+    cancelEdit.addEventListener('click', () => {
+      editorSection.style.display = 'none';
+    });
+    addTriggerBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.placeholder = 'New trigger';
+      triggersContainer.appendChild(input);
+    });
+    addGenericBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.placeholder = 'New reply';
+      genericContainer.appendChild(input);
+    });
+    saveScript.addEventListener('click', async () => {
+      const triggers = Array.from(triggersContainer.querySelectorAll('input')).map(i => i.value);
+      const openingMsg = openingMessage.value;
+      const genericReplies = Array.from(genericContainer.querySelectorAll('input')).map(i => i.value);
+      const other = otherScript.value;
+      const payload = { triggers, openingMessage: openingMsg, genericReplies, otherScript: other };
+      await fetch('/guidelines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      editorSection.style.display = 'none';
+      alert('התסריט נשמר בהצלחה');
     });
   </script>
 </body>
